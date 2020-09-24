@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- displays site properly based on user's device -->
+
+  <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png">
+  
+  <title>IP Address Tracker | Ivan Mercedes</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w==" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+  integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+  crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Feel free to remove these styles or customise in your own stylesheet 👍 -->
+  <link rel="stylesheet" href="./main.css">
+</head>
+<body>
+
+    <section>
+          <header>
+              <h1>IP Address Tracker</h1>
+              <div class="form">
+                <input type="text" name="findIp" id="findIp" placeholder="Search for any Ip address domain">
+                <button type="button" id="find">&#8250;</button>
+              </div>
+          </header>
+          <div class="info-details">
+            <div class="data">
+                <span>IP ADDRESS</span>
+                <h3 id="ip"></h3>
+            </div>
+            <div class="data">
+                <span>LOCATION</span>
+                <h3 id="location"></h3>
+            </div>
+            <div class="data">
+                <span>TIMEZONE</span>
+                <h3 id="timezone_name"></h3>
+            </div>
+            <div class="data">
+                <span>ISP</span>
+                <h3 id="isp"></h3>
+            </div>
+          </div>
+    </section>
+  
+    <div id="mapid"></div>
+  
+  <div class="attribution">
+    Challenge by <a href="https://www.frontendmentor.io?ref=challenge" target="_blank">Frontend Mentor</a>. 
+    Coded by <a href="#">Ivan Mercedes</a>.
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+  integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+  crossorigin=""></script>
+
+  <script>
+
+    "use strict";
+    function setMap(lat, lon) {
+
+        var mymap = L.map('mapid').setView([lat, lon], 15);
+        mymap.off();
+ 
+        
+        var myIcon = L.icon({
+            iconUrl: 'images/mark.png',
+            iconSize: [36, 46],
+        });
+
+        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+          maxZoom: 50,
+          minZoom: 15,
+          attribution: 'by Ivan Mercedes',
+          id: 'mapbox/streets-v11',
+          tileSize: 512,
+          zoomOffset: -1
+        }).addTo(mymap), L.marker([lat, lon], {icon: myIcon}).addTo(mymap) ;
+    }
+
+   function Init() {
+    const find = document.getElementById('findIp');
+    
+    const url = `https://json.geoiplookup.io/${ find.value !==''? find.value: ''}`;
+    fetch(url).then(function (response) {
+      return response.json();
+    }).then(function (data) {
+      const {ip, timezone_name, country_name, country_code, postal_code, isp, latitude, longitude} = data;
+      document.getElementById('ip').innerText = ip;
+      document.getElementById('location').innerText =`${country_name}, ${country_code} ${postal_code}`;
+      document.getElementById('timezone_name').innerText = timezone_name;
+      document.getElementById('isp').innerText = decodeURIComponent(escape(isp));
+      setMap(latitude, longitude);
+    });
+  }
+
+   window.addEventListener("DOMContentLoaded", Init);
+   document.getElementById('find').addEventListener('click', e=>{
+    var container = L.DomUtil.get('mapid');
+if(container != null){
+container._leaflet_id = null;
+}
+      Init();
+   });
+
+  </script>
+</body>
+</html>
